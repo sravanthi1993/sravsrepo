@@ -1,0 +1,41 @@
+{
+    "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.5/MicrosoftTeams.schema.json",
+    "manifestVersion": "1.5",
+    "version": "1.0.0",
+    "id": "1750610a-3650-485c-84d5-e67501019abc",
+    "packageName": "coms.mteams.echobot",
+    "developer": {
+        "name": "sravanthi",
+        "websiteUrl": "https://ded4df51.ngrok.io",
+        "privacyUrl": "https://ded4df51.ngrok.io/privacy",
+        "termsOfUseUrl": "https://ded4df51.ngrok.io/termsofuse"
+    },
+    "icons": {
+        "color": "color.png",
+        "outline": "outline.png"
+    },
+    "name": {
+        "short": "EchoBot",
+        "full": "EchoBot"
+    },
+    "description": {
+        "short": "Echo Bot",
+        "full": "This is a sample echo bot"
+    },
+    "accentColor": "#FFFFFF",
+    "bots": [
+        {
+            "botId": "2e497c38-bf6b-4cd8-aeec-7008f0814724",
+            "scopes": [
+                "personal"
+            ],
+            "supportsFiles": true,
+            "isNotificationOnly": true
+        }
+    ],
+    "permissions": [
+        "identity",
+        "messageTeamMembers"
+    ],
+    "validDomains": []
+}

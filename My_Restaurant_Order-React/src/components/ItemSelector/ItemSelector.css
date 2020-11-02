@@ -1,0 +1,45 @@
+.ItemName, .Itemprice, .ItemQuant
+{
+    color: turquoise;
+    width: 100px;
+    float: left;
+}
+
+
+.Itemprice
+{
+    position: absolute;
+    left: 350px;
+}
+
+
+.ItemQuant
+{
+    position: absolute;
+    left: 500px;
+}
+
+.ButtonLess, .ButtonMore, .orderButton
+{
+    background-color: orange;
+    color: black;
+}
+
+.ButtonLess
+{
+    position: relative;
+    left: 30px;
+    width: 30px;
+}
+
+.ButtonMore
+{
+    position: relative;
+    left: 30px;
+    width: 30px;
+}
+
+.orderButton
+{
+    margin-left: 5px
+}
