@@ -29,12 +29,13 @@
 }
 
 .header {
-  background-color: black;
+  background-color:darkblue ;
 }
 
 .Content {
   color: white;
   margin-left: 20px;
+  margin-right: 20px;
 }
 
 .rowht {
@@ -64,4 +65,25 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+.field {
+  margin-left: 20px;
+  width: 250px;
+}
+
+.Add{
+  width: 100px;
+  margin-left: 50px ;
+  margin-top: 20px;
+}
+
+.Indicator, .Label {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.Indicator {
+    margin-top: 140px;
+    margin-left: 200px;
 }

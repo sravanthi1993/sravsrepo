@@ -1,22 +1,26 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {v1 as uuid} from "uuid"; 
+import { TextField, PrimaryButton, Stack, IStackTokens } from 'office-ui-fabric-react';
 
-class AddResource extends React.Component 
+function AddResource() 
 { 
-    uuid = require('uuid');
-    state = {
+    const [state, setState] = useState({
         resName : "",
-        skills : "",
+        skils : "",
         billing : "",
         projectId : "",
-        indicatorText : ""
+        indicatorText: ""
+      });
+
+    //setState( { "projName" : "asadsa" });
+    function setProperty(e) {
+        setState(prevState => {
+            return {...prevState, [e.target.name] : e.target.value };
+        });
     }
 
-    //this.setState( { "projName" : "asadsa" });
-    setProperty = (e) => this.setState({ [e.target.name] : e.target.value });
 
-
-    onSubmit = (e) => {
+    function onSubmit(e){
       e.preventDefault();
       const url = "https://projectionsazurefunctions.azurewebsites.net/api/AddResource?code=20KXEmWE7j4hdDDcfYzaqH0fU48lLMxM8ufMP5xKZe5HaLqmMAq3fw==";
       //const url = "http://localhost:7071/api/AddResource";
@@ -24,52 +28,38 @@ class AddResource extends React.Component
             method : "POST",
             body:  JSON.stringify({
                 "ResourceID": uuid(),
-                "ResourceName": this.state.resName,
-                "Skills": this.state.skills,
-                "Billing": parseInt(this.state.billing) || 0,
-                "ProjectID": this.state.projectId
+                "ResourceName": state.resName,
+                "Skills": state.skills,
+                "Billing": parseInt(state.billing) || 0,
+                "ProjectID": state.projectId
             })
         })
         .then(response => {
-            this.setState({indicatorText: "Added new Resource"});
-        }).catch(err => {this.setState({indicatorText: "Ran into an error while adding Resource" + err})});
+            setState({indicatorText: "Added new Resource"});
+        }).catch(err => {setState({indicatorText: "Ran into an error while adding Resource" + err})});
     }
 
-	render(){ 
 		return (
-            <form onSubmit={this.onSubmit} >
+            <form onSubmit={onSubmit} >
             <React.Fragment>
             <div>
                 <h1> Add Resource</h1>
                 <h3> Enter the details of the project below</h3>
-                <table>
-                <tr>
-                <th><label> Name </label> </th>
-                <th><input name="resName" type="text" id="name" value = {this.state.resName} onChange={this.setProperty}/> </th>
-                </tr>
-                <tr>
-                <th><label> Skills </label></th>
-                <th><input name="skills" type="text" id="skills" value = {this.state.skills} onChange={this.setProperty}/> </th>
-                </tr>
-                <tr>
-                <th><label> Billing </label></th>
-                <th><input name="billing" type="text" id="billing" value = {this.state.billing} onChange={this.setProperty}/> </th>
-                </tr>
-                <tr>
-                <th><label> Project Name </label></th>
-                <th><input name="projectId" type="text" id="projectId" value = {this.state.projectId} onChange={this.setProperty}/> </th>
-                </tr>
-                </table>
-                <button id="AddResource"> Add </button>
+
+                <TextField className="field" label="Name" name="resName" value={state.resName} onChange={setProperty}/>
+                <TextField className="field" label="Skills" name="skills" value={state.skills} onChange={setProperty}/>
+                <TextField className="field" label="Billing (/hr)" name="billing" value={state.billing} onChange={setProperty}/>
+                <TextField className="field" label="Project ID" name="projectId" value={state.projectId} onChange={setProperty}/>
+                <PrimaryButton className="Add" text="Add" onClick={onSubmit} allowDisabledFocus />
+
                 <br/>
-                <label className="Indicator">{this.state.indicatorText}</label>
+                <label className="Indicator">{state.indicatorText}</label>
             
             </div>
             </React.Fragment>
             </form>
             
         );
-	} 
 } 
 
 export default AddResource; 

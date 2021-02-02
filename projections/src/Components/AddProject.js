@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react'; 
 import {v1 as uuid} from "uuid"; 
 import "./AddProject.css"
+import { Label } from 'office-ui-fabric-react/lib/Label';
 import { TextField, PrimaryButton, Stack, IStackTokens } from 'office-ui-fabric-react';
 import { DatePicker, DayOfWeek, IDatePickerStrings, mergeStyleSets } from 'office-ui-fabric-react';
 
@@ -64,16 +65,15 @@ import { DatePicker, DayOfWeek, IDatePickerStrings, mergeStyleSets } from 'offic
             <div>
             <form onSubmit={onSubmit} >
             <React.Fragment>
-                <h1> Add Project {state.projName}</h1>
-                <h3> Enter the details of the project below</h3>
+                <Label className="Label"> Enter the details of the project below</Label>
                 <TextField className="field" label="Name" name="projName" value={state.projName} onChange={setProperty}/>
                 <TextField className="field" label="Description" name="description" value={state.description} onChange={setProperty}/>
                 <DatePicker className="field" label="Start Date" placeholder="Select a date..." name="startDate" value={state.startDate} onSelectDate={setStartDate} ariaLabel="Select a date"/>
                 <DatePicker className="field" label="End Date" placeholder="Select a date..." name="endDate" value={state.endDate} onSelectDate={setEndDate} ariaLabel="Select a date"/>
-                <PrimaryButton className="AddProject" text="Add" onClick={onSubmit} allowDisabledFocus />
+                <PrimaryButton className="Add" text="Add" onClick={onSubmit} allowDisabledFocus />
                 {/* <button id="AddProject"> Add </button> */}
                 <br/>
-                <label className="Indicator">{state.indicatorText}</label>
+                <Label className="Indicator">{state.indicatorText}</Label>
             </React.Fragment>
             </form>
             </div>

@@ -2,7 +2,8 @@ import React from 'react'
 import AddProject from './Components/AddProject'
 import AddResource from './Components/AddResource'
 import Search from './Components/Search'
-import { Link, BrowserRouter } from 'react-router-dom'
+import { BrowserRouter } from 'react-router-dom'
+import { Link, Label } from 'office-ui-fabric-react';
 import { BrowserRouter as Switch, Route} from 'react-router-dom'
 import './App.css';
 
@@ -13,11 +14,11 @@ function App() {
      <BrowserRouter>
        <div>
          <div class ="header">
-         <h3 class="Content"> What do you want to do today </h3>
-     <Link to="/" class="Content"> Home</Link>  | 
-     <Link to="/addproject"  class="Content"> AddProject</Link>  | 
-     <Link to="/addresource"  class="Content"> AddResource</Link> |
-     <Link to="/search"  class="Content"> Search</Link>
+     <Label className="Content"> Project Billing Projections </Label>
+     <Link href="/" className="Content"> Home</Link>  | 
+     <Link href="/addproject"  className="Content"> AddProject</Link>  | 
+     <Link href="/addresource"  className="Content"> AddResource</Link> |
+     <Link href="/search"  className="Content"> Search</Link>
      </div>
      
          <Switch>
