@@ -1,0 +1,30 @@
+  #search{  
+    width: 100px;
+    float: left;
+  }
+
+  .projfield {
+    text-align: left;
+  }
+
+  .projdetails {
+    border: 1px solid black;
+    width: 100%;
+  }
+
+  .projdetailheader {
+    margin-left: 200px;
+  }
+
+  .SearchSection {
+    margin-left: 20px;
+  }
+
+  .BillingTable {
+    border: 1px solid black;
+    width: 100%;
+  }
+
+  .resentry {
+    font-style: initial; 
+  }
