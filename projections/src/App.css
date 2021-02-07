@@ -13,6 +13,10 @@
   }
 }
 
+.Label {
+   margin-left: 20px;
+}
+
 .App-header {
   background-color: greenyellow;
   min-height: 100vh;
@@ -29,7 +33,7 @@
 }
 
 .header {
-  background-color:darkblue ;
+  background-color: darkslategrey ;
 }
 
 .Content {
@@ -84,6 +88,5 @@
 }
 
 .Indicator {
-    margin-top: 140px;
     margin-left: 200px;
 }

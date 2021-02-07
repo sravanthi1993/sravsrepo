@@ -26,6 +26,7 @@ function AddResource()
       //const url = "http://localhost:7071/api/AddResource";
       fetch(url, {
             method : "POST",
+            mode: "no-cors",
             body:  JSON.stringify({
                 "ResourceID": uuid(),
                 "ResourceName": state.resName,

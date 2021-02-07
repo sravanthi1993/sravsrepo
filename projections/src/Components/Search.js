@@ -1,13 +1,15 @@
 import React, {useState} from 'react';
 import './Search.css';
 import { If, Else, Elif } from 'rc-if-else';
-import { Label, PrimaryButton } from 'office-ui-fabric-react';
+import { Label, PrimaryButton, List } from 'office-ui-fabric-react';
 import { SearchBox, ISearchBoxStyles } from 'office-ui-fabric-react/lib/SearchBox';
+import { DetailsList, DetailsListLayoutMode, Selection, IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 
 
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 function Search(){
 
+    const [items, setItems] = useState([]);
     const searchBoxStyles = { root: { width: 200 } };
     const [state, setState] = useState({
         searchString: "",
@@ -20,40 +22,120 @@ function Search(){
         resources: [],
         projNotFound: false,
         shouldShowProjections: false,
-        totalBill: 0
+        totalBill: 0,
+        poStatus:"active",
+        poValue: "",
+        poNum: "",
+        origPoNum: "",
+        poType: "sow",
+        projType: "t&m",
+        salesSegment: "",
+        cluster: "",
+        clientPartner: "",
+        accountManager: "",
+        cdmName: ""
       });
 
+    function UpdateItems()
+    {
+        console.log("hereeee");
+        setItems( [
+            {
+                "Field": "PO Number",
+                "Value": state.poNum
+            },
+            {
+                "Field": "Name",
+                "Value": state.projectName
+            }, {
+                "Field": "Description",
+                "Value": state.description
+            }, {
+                "Field": "Start Date",
+                "Value": state.startDate.toString()
+            }, {
+                "Field": "End Date",
+                "Value": state.endDate.toString()
+            }, {
+                "Field": "Original PO Number",
+                "Value": state.origPoNum
+            }, {
+                "Field": "PO Current Status",
+                "Value": state.poStatus
+            }, {
+                "Field": "PO Value",
+                "Value": state.poValue
+            }, {
+                "Field": "PO Type",
+                "Value": state.poType
+            }, {
+                "Field": "Project Type",
+                "Value": state.projType
+            }, {
+                "Field": "sSales Segment",
+                "Value": state.salesSegment
+            }, {
+                "Field": "Cluster ",
+                "Value": state.cluster
+            }, {
+                "Field": "Client Partner(L1)",
+                "Value": state.clientPartner
+            }, {
+                "Field": "Account Manager(L2)",
+                "Value": state.accountManager
+            }, {
+                "Field": "CDM Name",
+                "Value": state.cdmName
+            }
+        ]);
+    }
     function onSubmit(searchString) {
         //e.preventDefault();
         console.log(searchString + "------------")
         const url = "https://projectionsazurefunctions.azurewebsites.net/api/Search?code=CbTDUtF5NSctIKh/jP6BmrifZ17wiSyQvqc0COv0G1ybdouglcICWw==&ProjectName="+searchString;
-        //const url = "http://localhost:7071/api/AddProject";
+        //const url = "http://localhost:7071/api/Search?ProjectName="+searchString;
         fetch(url, {
               method : "GET",
+              mode: "cors",
             }).then(response => response.json()
             ).then(project => {
-                if(project.projectID != null)
+                if(project.poNumber != null)
                 {
-                setState(
-                    {
-                      projNotFound: false,
-                      projDetailsVisible: true,
+                setState(prevstate =>
+                    {return{...prevstate,
                       shouldShowProjections: false,
-                      projectID: project.projectID,
                       projectName: project.projectName,
                       startDate: new Date(Date.parse(project.startDate)),
                       endDate: new Date(Date.parse(project.endDate)),
                       description: project.description,
-                      resources: project.resources
+                      resources: project.resources,
+                      poStatus: project.poStatus == 0 ? "Active" : "Inactive",
+                      poValue: project.poValue,
+                      poType: project.poType == 0 ? "SOW" : "Beeline",
+                      projType: project.projectType == 0 ? "T&M" : "Fixed Price",
+                      poNum: project.poNumber,
+                      origPoNum: project.orginalPoNumber,
+                      salesSegment: project.salesSegment,
+                      cluster: project.cluster,
+                      clientPartner: project.clientPartner,
+                      accountManager: project.accountManager,
+                      cdmName: project.cdmName
+                    }
                     }
                 );
+                UpdateItems();
+                setState(prevState =>
+                    {return {...prevState, 
+                      projDetailsVisible: true,  
+                      projNotFound: false,
+                    }})
                 }
                 else{
-                    setState(
-                        {
+                    setState(prevstate =>
+                        {return{...prevstate,
                             projNotFound: true,
                             projDetailsVisible: false,
-                            shouldShowProjections: false
+                            shouldShowProjections: false}
                         })
                 }
 
@@ -71,9 +153,10 @@ function Search(){
         const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
         var diffdays = Math.floor((utc2 - utc1) / _MS_PER_DAY);
         billing *= diffdays  
-        setState({
-            totalBill : billing,
-            shouldShowProjections: true
+        setState(prevstate => {
+            return{...prevstate,totalBill : billing,
+                shouldShowProjections: true}
+            
         })
       }
 
@@ -91,63 +174,74 @@ function Search(){
                 <If condition={state.projDetailsVisible}>
                 <h2 className = "projdetailheader"> Project Details </h2>
                 <table className="projdetails">
-                    <tr className="projfield"> 
-                        <th><label >Project ID</label></th>
-                        <th><label>{state.projectID}</label></th>
+                    <tbody>
+                    {/* <tr className="projfield"> 
+                        <td><label >Project ID</label></td>
+                        <td><label>{state.projectID}</label></td>
                     </tr>
                     <tr className="projfield">
-                        <th><label>Project Name</label></th>
-                        <th><label>{state.projectName}</label></th>
+                        <td><label>Project Name</label></td>
+                        <td><label>{state.projectName}</label></td>
                     </tr>
                     <tr className="projfield">
-                        <th><label>Description</label></th>
-                        <th><label>{state.description}</label></th>
+                        <td><label>Description</label></td>
+                        <td><label>{state.description}</label></td>
                     </tr>
                     <tr className="projfield">
-                        <th><label>Start Date</label></th>
-                        <th><label>{state.startDate.toString()}</label></th>
+                        <td><label>Start Date</label></td>
+                        <td><label>{state.startDate.toString()}</label></td>
                     </tr>
                     <tr className="projfield">
-                        <th><label>End Date</label></th>
-                        <th><label>{state.endDate.toString()}</label></th>
-                    </tr>
-                    <br/>
+                        <td><label>End Date</label></td>
+                        <td><label>{state.endDate.toString()}</label></td>
+                    </tr> */}
+                    
+                    <DetailsList
+                        items={items}
+                        setKey="set"
+                        layoutMode={DetailsListLayoutMode.justified}
+                    />
                     <If condition={state.resources.length > 0}>
                     <h3> Resources </h3>
-                    <ul className="projfield">
+                    <div className="projfield">
                     { state.resources.map(res =>
                         <li className="projfield">{res.resourceName}</li>)
                     }
-                    </ul>
-                    
+                    </div> 
                     </If>
                     <If condition={state.resources.length == 0}>
                     <h3> No resources assigned to the project as of now. </h3>
                     </If>
+                    </tbody>
                 </table>
+                <br></br>
                 </If>
                 <If condition={state.resources.length > 0}>
-                 <button id="Projections" onClick={showProjections}>Show Projection</button>
+                 <PrimaryButton id="Projections" onClick={showProjections}>Show Projection</PrimaryButton>
                 </If>
+                <br></br>
                 <If condition={state.shouldShowProjections} >
+                <br></br>
                     <table className="BillingTable">
+                        <tbody>
                         <tr>
-                            <th> Resource Name</th>
-                            <th> Bill (/day) </th>
-                            <th> Bill for the project duration</th>
+                            <td> Resource Name</td>
+                            <td> Bill (/day) </td>
+                            <td> Bill for the project duration</td>
                         </tr>
                         { state.resources.map(res =>
                         <tr>
-                            <th className="resentry"> {res.resourceName} </th>
-                            <th className="resentry"> ${res.billing} </th>
-                            <th className="resentry"> ${res.billing * ((state.endDate - state.startDate)/_MS_PER_DAY)}</th>
+                            <td className="resentry"> {res.resourceName} </td>
+                            <td className="resentry"> ${res.billing} </td>
+                            <td className="resentry"> ${res.billing * ((state.endDate - state.startDate)/_MS_PER_DAY)}</td>
                         </tr>)}
                         <br/>
                         <tr>
-                            <th> Total</th>
-                            <th>  - </th>
-                            <th> ${state.totalBill} </th>
+                            <td> Total</td>
+                            <td>  - </td>
+                            <td> ${state.totalBill} </td>
                         </tr>
+                        </tbody>
                     </table>
                     
                 </If>
