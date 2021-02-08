@@ -89,11 +89,18 @@ function Search(){
             }
         ]);
     }
+    
+    React.useEffect(() => {
+        UpdateItems();
+      }, [state]);
+
     function onSubmit(searchString) {
         //e.preventDefault();
         console.log(searchString + "------------")
         const url = "https://projectionsazurefunctions.azurewebsites.net/api/Search?code=CbTDUtF5NSctIKh/jP6BmrifZ17wiSyQvqc0COv0G1ybdouglcICWw==&ProjectName="+searchString;
         //const url = "http://localhost:7071/api/Search?ProjectName="+searchString;
+        
+
         fetch(url, {
               method : "GET",
               mode: "cors",
@@ -123,7 +130,6 @@ function Search(){
                     }
                     }
                 );
-                UpdateItems();
                 setState(prevState =>
                     {return {...prevState, 
                       projDetailsVisible: true,  
@@ -173,36 +179,13 @@ function Search(){
                 </If>
                 <If condition={state.projDetailsVisible}>
                 <h2 className = "projdetailheader"> Project Details </h2>
-                <table className="projdetails">
-                    <tbody>
-                    {/* <tr className="projfield"> 
-                        <td><label >Project ID</label></td>
-                        <td><label>{state.projectID}</label></td>
-                    </tr>
-                    <tr className="projfield">
-                        <td><label>Project Name</label></td>
-                        <td><label>{state.projectName}</label></td>
-                    </tr>
-                    <tr className="projfield">
-                        <td><label>Description</label></td>
-                        <td><label>{state.description}</label></td>
-                    </tr>
-                    <tr className="projfield">
-                        <td><label>Start Date</label></td>
-                        <td><label>{state.startDate.toString()}</label></td>
-                    </tr>
-                    <tr className="projfield">
-                        <td><label>End Date</label></td>
-                        <td><label>{state.endDate.toString()}</label></td>
-                    </tr> */}
-                    
                     <DetailsList
                         items={items}
                         setKey="set"
                         layoutMode={DetailsListLayoutMode.justified}
-                    />
+                    /> <br/>
                     <If condition={state.resources.length > 0}>
-                    <h3> Resources </h3>
+                    <Label className="field"> Resources </Label>
                     <div className="projfield">
                     { state.resources.map(res =>
                         <li className="projfield">{res.resourceName}</li>)
@@ -212,9 +195,7 @@ function Search(){
                     <If condition={state.resources.length == 0}>
                     <h3> No resources assigned to the project as of now. </h3>
                     </If>
-                    </tbody>
-                </table>
-                <br></br>
+                    <br/>
                 </If>
                 <If condition={state.resources.length > 0}>
                  <PrimaryButton id="Projections" onClick={showProjections}>Show Projection</PrimaryButton>
