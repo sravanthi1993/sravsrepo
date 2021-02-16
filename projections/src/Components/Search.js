@@ -106,7 +106,7 @@ function Search(){
               mode: "cors",
             }).then(response => response.json()
             ).then(project => {
-                if(project.poNumber != null)
+                if(project.poNumber != 0)
                 {
                 setState(prevstate =>
                     {return{...prevstate,
