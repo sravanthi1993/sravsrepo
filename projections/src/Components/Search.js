@@ -3,12 +3,18 @@ import './Search.css';
 import { If, Else, Elif } from 'rc-if-else';
 import { Label, PrimaryButton, List } from 'office-ui-fabric-react';
 import { SearchBox, ISearchBoxStyles } from 'office-ui-fabric-react/lib/SearchBox';
-import { DetailsList, DetailsListLayoutMode, Selection, IColumn } from 'office-ui-fabric-react/lib/DetailsList';
+import { DetailsList, DetailsListLayoutMode, SelectionMode, Selection, IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 
+const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
 
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
+const holidays = [new Date(2021,1,19), new Date(2021,4,28)];
 function Search(){
 
+    const [resourceDetails, setResourceDetails ] = useState([]);
+    const [billingDetails, setBillingDetails] = useState([]);
     const [items, setItems] = useState([]);
     const searchBoxStyles = { root: { width: 200 } };
     const [state, setState] = useState({
@@ -88,6 +94,16 @@ function Search(){
                 "Value": state.cdmName
             }
         ]);
+        var resDetails = [];
+        state.resources.map(res =>{
+            resDetails.push(
+                {
+                    "ResourceName": res.resourceName,
+                    "Billing (/day)": res.billing,
+                }
+            )   
+        } ) 
+        setResourceDetails(resDetails) ;
     }
     
     React.useEffect(() => {
@@ -96,14 +112,12 @@ function Search(){
 
     function onSubmit(searchString) {
         //e.preventDefault();
-        console.log(searchString + "------------")
         const url = "https://projectionsazurefunctions.azurewebsites.net/api/Search?code=CbTDUtF5NSctIKh/jP6BmrifZ17wiSyQvqc0COv0G1ybdouglcICWw==&ProjectName="+searchString;
         //const url = "http://localhost:7071/api/Search?ProjectName="+searchString;
         
 
         fetch(url, {
               method : "GET",
-              mode: "cors",
             }).then(response => response.json()
             ).then(project => {
                 if(project.poNumber != 0)
@@ -148,6 +162,50 @@ function Search(){
             }).catch(err => {alert(err)});
       }
       
+     function computeWorkingDaysBetweenTwoDays(startDate, endDate) {
+      
+      // Validate input
+        if (endDate <= startDate) {
+          return 0;
+        }
+      
+      // Calculate days between dates
+        var millisecondsPerDay = 86400 * 1000; // Day in milliseconds
+        startDate.setHours(0, 0, 0, 1);  // Start just after midnight
+        endDate.setHours(23, 59, 59, 999);  // End just before midnight
+        var diff = endDate - startDate;  // Milliseconds between datetime objects    
+        var days = Math.ceil(diff / millisecondsPerDay);
+      
+        // Subtract two weekend days for every week in between
+        var weeks = Math.floor(days / 7);
+        days -= weeks * 2;
+      
+        // Handle special cases
+        var startDay = startDate.getDay();
+        var endDay = endDate.getDay();
+          
+        // Remove weekend not previously removed.   
+        if (startDay - endDay > 1) {
+          days -= 2;
+        }
+        // Remove start day if span starts on Sunday but ends before Saturday
+        if (startDay == 0 && endDay != 6) {
+          days--;  
+        }
+        // Remove end day if span ends on Saturday but starts after Sunday
+        if (endDay == 6 && startDay != 0) {
+          days--;
+        }
+        /* Here is the code */
+        holidays.forEach(day => {
+            console.log(day + "--" + startDate + "--" + endDate)
+          if ((day >= startDate) && (day <= endDate)) {
+              days--;
+          }
+        });
+        return days;
+     }
+
       function showProjections() {
           var billing = 0
         state.resources.map(res =>{
@@ -155,15 +213,37 @@ function Search(){
         } )   
         var a = state.startDate;
         var b = state.endDate;
-        const utc1 = Date.UTC(a.getFullYear(), a.getMonth(), a.getDate());
-        const utc2 = Date.UTC(b.getFullYear(), b.getMonth(), b.getDate());
-        var diffdays = Math.floor((utc2 - utc1) / _MS_PER_DAY);
-        billing *= diffdays  
-        setState(prevstate => {
-            return{...prevstate,totalBill : billing,
-                shouldShowProjections: true}
+        
+        var start = state.startDate;
+        var end = new Date(a.getFullYear(), a.getMonth() + 1, 0);
+        end = (end > state.endDate) ? state.endDate: end;
+        var total = 0;
+        var billDetails = [];
+        var year = a.getFullYear();
+        while (end >= start)
+        {
+            var diffDays = computeWorkingDaysBetweenTwoDays(start, end);
+            total += billing*diffDays;
+            billDetails.push(
+                {
+                  "Month": monthNames[start.getMonth()] + " " + start.getFullYear(),
+                  "Working days": diffDays,
+                  "Monthly Bill": "$"+(billing*diffDays)},
+                )
+
+            var month = start.getMonth() == 11 ? -1 : start.getMonth();
+            year = start.getMonth() == 11 ? year+1: year;
+            start = new Date(year, month + 1, 1);
+            end = new Date(year, start.getMonth()+1, 0);
+            end = (end > state.endDate) ? state.endDate: end;
+       }
+
+       setState(prevstate => {
+            return{...prevstate,totalBill : total,
+                shouldShowProjections: true,}
             
         })
+        setBillingDetails(billDetails);
       }
 
         return(
@@ -183,14 +263,16 @@ function Search(){
                         items={items}
                         setKey="set"
                         layoutMode={DetailsListLayoutMode.justified}
+                        selectionMode={SelectionMode.none}
                     /> <br/>
                     <If condition={state.resources.length > 0}>
-                    <Label className="field"> Resources </Label>
-                    <div className="projfield">
-                    { state.resources.map(res =>
-                        <li className="projfield">{res.resourceName}</li>)
-                    }
-                    </div> 
+                    <h3> Resources </h3>
+                    <DetailsList
+                        items={resourceDetails}
+                        setKey="set"
+                        layoutMode={DetailsListLayoutMode.justified}
+                        selectionMode={SelectionMode.none}
+                    /> 
                     </If>
                     <If condition={state.resources.length == 0}>
                     <h3> No resources assigned to the project as of now. </h3>
@@ -202,29 +284,13 @@ function Search(){
                 </If>
                 <br></br>
                 <If condition={state.shouldShowProjections} >
-                <br></br>
-                    <table className="BillingTable">
-                        <tbody>
-                        <tr>
-                            <td> Resource Name</td>
-                            <td> Bill (/day) </td>
-                            <td> Bill for the project duration</td>
-                        </tr>
-                        { state.resources.map(res =>
-                        <tr>
-                            <td className="resentry"> {res.resourceName} </td>
-                            <td className="resentry"> ${res.billing} </td>
-                            <td className="resentry"> ${res.billing * ((state.endDate - state.startDate)/_MS_PER_DAY)}</td>
-                        </tr>)}
-                        <br/>
-                        <tr>
-                            <td> Total</td>
-                            <td>  - </td>
-                            <td> ${state.totalBill} </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    
+                <DetailsList
+                        items={billingDetails}
+                        setKey="set"
+                        layoutMode={DetailsListLayoutMode.justified}
+                        selectionMode={SelectionMode.none}
+                    /> 
+                    <h3> Total Bill - ${state.totalBill}</h3>
                 </If>
             </div>
         );
