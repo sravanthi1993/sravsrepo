@@ -9,6 +9,7 @@ function AddResource()
         skils : "",
         billing : "",
         projectId : "",
+        resourceprojectstartdate : new Date(),//added new
         indicatorText: ""
       });
 
@@ -32,7 +33,8 @@ function AddResource()
                 "ResourceName": state.resName,
                 "Skills": state.skills,
                 "Billing": parseInt(state.billing) || 0,
-                "ProjectID": state.projectId
+                "ProjectID": state.projectId,
+                
             })
         })
         .then(response => {

@@ -3,11 +3,16 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { AzureAD } from 'react-aad-msal';
+import { config } from './Config';
 
 ReactDOM.render(
-  <React.StrictMode>
+<AzureAD provider={config} forceLogin={true}>
+<App />
+</AzureAD>,
+  /*<React.StrictMode>
     <App />
-  </React.StrictMode>,
+  </React.StrictMode>,*/
   document.getElementById('root')
 );
 

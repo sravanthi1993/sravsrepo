@@ -2,6 +2,7 @@ import React from 'react'
 import AddProject from './Components/AddProject'
 import AddResource from './Components/AddResource'
 import Search from './Components/Search'
+import Holidays from './Components/Holidays'
 import { BrowserRouter } from 'react-router-dom'
 import { Link, Label } from 'office-ui-fabric-react';
 import { BrowserRouter as Switch, Route} from 'react-router-dom'
@@ -18,7 +19,8 @@ function App() {
      <Link href="/" className="Content"> Home</Link>  | 
      <Link href="/addproject"  className="Content"> AddProject</Link>  | 
      <Link href="/addresource"  className="Content"> AddResource</Link> |
-     <Link href="/search"  className="Content"> Search</Link>
+     <Link href="/search"  className="Content"> Search</Link> |
+     <Link href="/holidays" className ="Content">Holidays</Link>
      </div>
      
          <Switch>
@@ -31,6 +33,7 @@ function App() {
        <Route exact path="/addproject" component={AddProject}/>
        <Route exact path="/addresource" component={AddResource}/>
        <Route path="/search" component={Search}/>
+       <Route path="/holidays" component={Holidays}/>
       
        </div>
       </BrowserRouter>

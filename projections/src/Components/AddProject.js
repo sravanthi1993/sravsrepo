@@ -67,6 +67,10 @@ import { DatePicker, DayOfWeek, IDatePickerStrings, mergeStyleSets } from 'offic
             });
         }
 
+        
+        
+        
+
         function onSubmit(e) {
             e.preventDefault();
             console.log(state.startDate + " ---- "+ state.endDate);
@@ -123,7 +127,8 @@ import { DatePicker, DayOfWeek, IDatePickerStrings, mergeStyleSets } from 'offic
                 <TextField className="field" label="Client Partner(L1)" name="clientPartner" value={state.clientPartner} onChange={setProperty}/>
                 <TextField className="field" label="Account Manager(L2)" name="accountManager" value={state.accountManager} onChange={setProperty}/>
                 <TextField className="field" label="CDM Name" name="cdmName" value={state.cdmName} onChange={setProperty}/>
-
+                
+                <PrimaryButton className="Add" text="AddResource" onClick={onSubmit} allowDisabledFocus />
                 <PrimaryButton className="Add" text="Add" onClick={onSubmit} allowDisabledFocus />
                 {/* <button id="AddProject"> Add </button> */}
                 <br/>

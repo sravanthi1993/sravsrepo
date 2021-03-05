@@ -10,8 +10,10 @@ const monthNames = ["January", "February", "March", "April", "May", "June",
 ];
 
 const _MS_PER_DAY = 1000 * 60 * 60 * 24;
-const holidays = [new Date(2021,1,19), new Date(2021,4,28)];
+//const holidays = [new Date(2021,1,19), new Date(2021,4,28)];
+var listofholidays = []
 function Search(){
+
 
     const [resourceDetails, setResourceDetails ] = useState([]);
     const [billingDetails, setBillingDetails] = useState([]);
@@ -44,7 +46,6 @@ function Search(){
 
     function UpdateItems()
     {
-        console.log("hereeee");
         setItems( [
             {
                 "Field": "PO Number",
@@ -196,9 +197,10 @@ function Search(){
         if (endDay == 6 && startDay != 0) {
           days--;
         }
+
         /* Here is the code */
-        holidays.forEach(day => {
-            console.log(day + "--" + startDate + "--" + endDate)
+        listofholidays.forEach(day => {
+            console.log(day + " -- " + startDate + " -- " + endDate)
           if ((day >= startDate) && (day <= endDate)) {
               days--;
           }
@@ -207,43 +209,59 @@ function Search(){
      }
 
       function showProjections() {
-          var billing = 0
-        state.resources.map(res =>{
-            billing +=res.billing;   
-        } )   
-        var a = state.startDate;
-        var b = state.endDate;
-        
-        var start = state.startDate;
-        var end = new Date(a.getFullYear(), a.getMonth() + 1, 0);
-        end = (end > state.endDate) ? state.endDate: end;
-        var total = 0;
-        var billDetails = [];
-        var year = a.getFullYear();
-        while (end >= start)
-        {
-            var diffDays = computeWorkingDaysBetweenTwoDays(start, end);
-            total += billing*diffDays;
-            billDetails.push(
+          
+        //const url = "http://localhost:7071/api/GetHolidays";
+        const url = "https://projectionsazurefunctions.azurewebsites.net/api/GetHolidays?code=IGZG4SdEVqbHWYhV32asIb8junLY3IttJDVB4KjCjL3aNGyr0L1rOg=="
+        fetch(url, {
+            method : "GET"
+          }).then(response => response.json()
+          ).then(holidays => {
+              console.log(holidays);
+              holidays.map(holiday =>  
                 {
-                  "Month": monthNames[start.getMonth()] + " " + start.getFullYear(),
-                  "Working days": diffDays,
-                  "Monthly Bill": "$"+(billing*diffDays)},
-                )
+                    listofholidays.push(new Date(Date.parse(holiday.holidayDate)))
+                });
+              console.log(listofholidays)
 
-            var month = start.getMonth() == 11 ? -1 : start.getMonth();
-            year = start.getMonth() == 11 ? year+1: year;
-            start = new Date(year, month + 1, 1);
-            end = new Date(year, start.getMonth()+1, 0);
-            end = (end > state.endDate) ? state.endDate: end;
-       }
+              var billing = 0
+              state.resources.map(res =>{
+                  billing +=res.billing;   
+              } )   
+              var a = state.startDate;
+              var b = state.endDate;
+              
+              var start = state.startDate;
+              var end = new Date(a.getFullYear(), a.getMonth() + 1, 0);
+              end = (end > state.endDate) ? state.endDate: end;
+              var total = 0;
+              var billDetails = [];
+              var year = a.getFullYear();
+              while (end >= start)
+              {
+                  var diffDays = computeWorkingDaysBetweenTwoDays(start, end);
+                  total += billing*diffDays;
+                  billDetails.push(
+                      {
+                        "Month": monthNames[start.getMonth()] + " " + start.getFullYear(),
+                        "Working days": diffDays,
+                        "Monthly Bill": "$"+(billing*diffDays)},
+                      )
+      
+                  var month = start.getMonth() == 11 ? -1 : start.getMonth();
+                  year = start.getMonth() == 11 ? year+1: year;
+                  start = new Date(year, month + 1, 1);
+                  end = new Date(year, start.getMonth()+1, 0);
+                  end = (end > state.endDate) ? state.endDate: end;
+             }
+      
+             setState(prevstate => {
+                  return{...prevstate,totalBill : total,
+                      shouldShowProjections: true,}
+                  
+              })
+              setBillingDetails(billDetails);
+          });
 
-       setState(prevstate => {
-            return{...prevstate,totalBill : total,
-                shouldShowProjections: true,}
-            
-        })
-        setBillingDetails(billDetails);
       }
 
         return(
