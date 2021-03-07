@@ -5,12 +5,16 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { AzureAD } from 'react-aad-msal';
 import { config } from './Config';
+import {authProvider} from './AuthProvider'
 
 ReactDOM.render(
-<AzureAD provider={config} forceLogin={true}>
+  <AzureAD provider={authProvider} forceLogin={true}>
+    <App />
+  </AzureAD>,
+/*<AzureAD provider={config} forceLogin={true}>
 <App />
 </AzureAD>,
-  /*<React.StrictMode>
+  <React.StrictMode>
     <App />
   </React.StrictMode>,*/
   document.getElementById('root')

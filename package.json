@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "msal": "^1.4.6",
+    "react-aad-msal": "^2.3.5"
+  }
+}
