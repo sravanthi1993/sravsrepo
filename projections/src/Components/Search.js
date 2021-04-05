@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import './Search.css';
 import { If, Else, Elif } from 'rc-if-else';
-import { Label, PrimaryButton, List } from 'office-ui-fabric-react';
+import { Label, Link, PrimaryButton, List } from 'office-ui-fabric-react';
 import { SearchBox, ISearchBoxStyles } from 'office-ui-fabric-react/lib/SearchBox';
 import { DetailsList, DetailsListLayoutMode, SelectionMode, Selection, IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 
@@ -14,7 +14,7 @@ const _MS_PER_DAY = 1000 * 60 * 60 * 24;
 var listofholidays = []
 function Search(){
 
-
+    const [projlist, setProjlist] = useState([]);
     const [resourceDetails, setResourceDetails ] = useState([]);
     const [billingDetails, setBillingDetails] = useState([]);
     const [items, setItems] = useState([]);
@@ -26,6 +26,7 @@ function Search(){
         description : "",
         startDate : new Date(),
         endDate : new Date(),
+        projListVisible: false,
         projDetailsVisible: false,
         resources: [],
         projNotFound: false,
@@ -111,6 +112,33 @@ function Search(){
         UpdateItems();
       }, [state]);
 
+    function setCurrentProject(e) {
+        var project = projlist[e.target.name]
+        setState(prevstate =>
+            {return{...prevstate,
+              shouldShowProjections: false,
+              projectName: project.projectName,
+              startDate: new Date(Date.parse(project.startDate)),
+              endDate: new Date(Date.parse(project.endDate)),
+              description: project.description,
+              resources: project.resources,
+              poStatus: project.poStatus == 0 ? "Active" : "Inactive",
+              poValue: project.poValue,
+              poType: project.poType == 0 ? "SOW" : "Beeline",
+              projType: project.projectType == 0 ? "T&M" : "Fixed Price",
+              poNum: project.poNumber,
+              origPoNum: project.orginalPoNumber,
+              salesSegment: project.salesSegment,
+              cluster: project.cluster,
+              clientPartner: project.clientPartner,
+              accountManager: project.accountManager,
+              cdmName: project.cdmName,
+              projDetailsVisible: true
+            }
+            }
+        );
+    }
+
     function onSubmit(searchString) {
         //e.preventDefault();
         const url = "https://projectionsazurefunctions.azurewebsites.net/api/Search?code=CbTDUtF5NSctIKh/jP6BmrifZ17wiSyQvqc0COv0G1ybdouglcICWw==&ProjectName="+searchString;
@@ -120,9 +148,15 @@ function Search(){
         fetch(url, {
               method : "GET",
             }).then(response => response.json()
-            ).then(project => {
-                if(project.poNumber != 0)
+            ).then(projects => {
+                console.log(projects)
+                if(projects.length != 0)
                 {
+                    setProjlist(projects)
+                
+               /* if(project.poNumber != 0)
+                {
+
                 setState(prevstate =>
                     {return{...prevstate,
                       shouldShowProjections: false,
@@ -144,10 +178,10 @@ function Search(){
                       cdmName: project.cdmName
                     }
                     }
-                );
+                );*/
                 setState(prevState =>
                     {return {...prevState, 
-                      projDetailsVisible: true,  
+                        projListVisible: true,  
                       projNotFound: false,
                     }})
                 }
@@ -155,6 +189,7 @@ function Search(){
                     setState(prevstate =>
                         {return{...prevstate,
                             projNotFound: true,
+                            projListVisible: false,
                             projDetailsVisible: false,
                             shouldShowProjections: false}
                         })
@@ -166,7 +201,7 @@ function Search(){
      function computeWorkingDaysBetweenTwoDays(startDate, endDate) {
       
       // Validate input
-        if (endDate <= startDate) {
+        if (endDate < startDate) {
           return 0;
         }
       
@@ -200,7 +235,7 @@ function Search(){
 
         /* Here is the code */
         listofholidays.forEach(day => {
-            console.log(day + " -- " + startDate + " -- " + endDate)
+            //console.log(day + " -- " + startDate + " -- " + endDate)
           if ((day >= startDate) && (day <= endDate)) {
               days--;
           }
@@ -210,7 +245,7 @@ function Search(){
 
       function showProjections() {
           
-        //const url = "http://localhost:7071/api/GetHolidays";
+        //const url = "http://localhost:7071/api/search";
         const url = "https://projectionsazurefunctions.azurewebsites.net/api/GetHolidays?code=IGZG4SdEVqbHWYhV32asIb8junLY3IttJDVB4KjCjL3aNGyr0L1rOg=="
         fetch(url, {
             method : "GET"
@@ -223,42 +258,69 @@ function Search(){
                 });
               console.log(listofholidays)
 
-              var billing = 0
-              state.resources.map(res =>{
-                  billing +=res.billing;   
-              } )   
-              var a = state.startDate;
-              var b = state.endDate;
-              
-              var start = state.startDate;
-              var end = new Date(a.getFullYear(), a.getMonth() + 1, 0);
-              end = (end > state.endDate) ? state.endDate: end;
               var total = 0;
               var billDetails = [];
-              var year = a.getFullYear();
-              while (end >= start)
-              {
-                  var diffDays = computeWorkingDaysBetweenTwoDays(start, end);
-                  total += billing*diffDays;
-                  billDetails.push(
+              var billMap = new Map();
+
+              state.resources.map(res => {
+
+                var billing = res.billing
+                 // var a = new Date(res.resourceProjStartDate);
+                  //var b = state.endDate;
+                  var start = new Date(res.resourceProjStartDate);
+                  var end = new Date(start.getFullYear(), start.getMonth() + 1, 0);
+                  console.log(start + " - " + end + " - " + billing)
+                  end = (end > state.endDate) ? state.endDate : end;
+                  var year = start.getFullYear();
+                  while (end >= start) {
+                      var diffDays = computeWorkingDaysBetweenTwoDays(start, end);
+                      total += billing * diffDays;
+
+                      var key = monthNames[start.getMonth()] + " " + start.getFullYear();
+                      console.log(key + "-" + billMap.get(key));
+                      if(!billMap.has(key))
                       {
-                        "Month": monthNames[start.getMonth()] + " " + start.getFullYear(),
-                        "Working days": diffDays,
-                        "Monthly Bill": "$"+(billing*diffDays)},
-                      )
-      
-                  var month = start.getMonth() == 11 ? -1 : start.getMonth();
-                  year = start.getMonth() == 11 ? year+1: year;
-                  start = new Date(year, month + 1, 1);
-                  end = new Date(year, start.getMonth()+1, 0);
-                  end = (end > state.endDate) ? state.endDate: end;
-             }
+                        billMap.set(key, 0);
+                      }
+                      billMap.set(key, billMap.get(key) + (billing * diffDays));
+                      
+
+                      var month = start.getMonth() == 11 ? -1 : start.getMonth();
+                      year = start.getMonth() == 11 ? year + 1 : year;
+                      start = new Date(year, month + 1, 1);
+                      end = new Date(year, start.getMonth() + 1, 0);
+                      end = (end >= state.endDate) ? state.endDate : end;
+                      console.log(start + " - " + end + " - " + billing)
+                  }
+              })
+
       
              setState(prevstate => {
                   return{...prevstate,totalBill : total,
                       shouldShowProjections: true,}
                   
               })
+              
+              for (const [key, value] of billMap) {
+                billDetails.push(
+                    {
+                        "Month": key,
+                        "Monthly Bill": "$" + value
+                    },
+                )
+                console.log(`${key}: ${value}`);
+              }
+
+             
+            //   billMap.map(monthlyBill => {
+            //       billDetails.push(
+            //           {
+            //               "Month": monthlyBill,
+            //               "Monthly Bill": "$" + (billing * diffDays)
+            //           },
+            //       )
+            //   })
+
               setBillingDetails(billDetails);
           });
 
@@ -272,10 +334,28 @@ function Search(){
                     placeholder="Enter the Project name"
                     onSearch={onSubmit}
                 />
+                
                 <If condition={state.projNotFound}>
                     <h3> Project not found! </h3>
                 </If>
+                
+                <If condition={state.projListVisible}>
+                <h1 className = "ProjectsList"> Projects List </h1>
+                {
+                    projlist.map((proj , index)=> {
+                        console.log(proj.projectName);
+                        return <div><Link onClick={setCurrentProject} name= {index}>{proj.projectName} </Link> <br/></div>
+                    })
+                }
+                </If>
+
                 <If condition={state.projDetailsVisible}>
+                {/* <DetailsList
+                    items ={projlist}
+                    setKey = "set"
+                    layoutMode={DetailsListLayoutMode.justified}
+                    selectionMode={SelectionMode.none}
+                /> */}
                 <h2 className = "projdetailheader"> Project Details </h2>
                     <DetailsList
                         items={items}
@@ -297,7 +377,7 @@ function Search(){
                     </If>
                     <br/>
                 </If>
-                <If condition={state.resources.length > 0}>
+                <If condition={state.projDetailsVisible && state.resources.length > 0}>
                  <PrimaryButton id="Projections" onClick={showProjections}>Show Projection</PrimaryButton>
                 </If>
                 <br></br>

@@ -1,7 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import { Label } from 'office-ui-fabric-react/lib/Label';
-import { TextField, PrimaryButton, ChoiceGroup, Stack, IStackTokens } from 'office-ui-fabric-react';
+import { TextField, PrimaryButton, ChoiceGroup, Stack, IStackTokens, DetailsList } from 'office-ui-fabric-react';
 import { DatePicker, DayOfWeek, IDatePickerStrings, mergeStyleSets } from 'office-ui-fabric-react';
+import {DetailsListLayoutMode, SelectionMode, Selection, IColumn } from 'office-ui-fabric-react/lib/DetailsList';
 
 const Holidays = () => {
     const[state,setState] = useState ({
@@ -26,7 +27,30 @@ const Holidays = () => {
                 });
     }
 
+    const [Holidaysdetails, setHolidaysdetails ] = useState([]);
+    //var listofholidays = []
     
+    useEffect(() => {
+        //getholidayslist();
+        });
+
+    function getholidayslist() {
+        const url = "https://projectionsazurefunctions.azurewebsites.net/api/GetHolidays?code=IGZG4SdEVqbHWYhV32asIb8junLY3IttJDVB4KjCjL3aNGyr0L1rOg=="
+        fetch(url, {
+            method: "GET"
+        }).then(response => response.json()
+        ).then(holidays => {
+            console.log(holidays);
+            /*holidays.map(holiday =>  
+              {
+                  listofholidays.push(new Date(Date.parse(holiday.holidayDate)))
+              });*/
+            //console.log(listofholidays)
+            setHolidaysdetails(holidays);
+        })
+    }
+    
+
     function onSubmit(e) {
         e.preventDefault();
         console.log(state.HolDate + " ---- "+ state.Occasion);
@@ -47,6 +71,7 @@ const Holidays = () => {
               })
           }).then(response => {
               setState({indicatorText: "Added Holidays"});
+              getholidayslist();
           }).catch(err => {setState({indicatorText: "Ran into an error while adding project " + err})});
       }
 
@@ -62,6 +87,12 @@ const Holidays = () => {
         
         <DatePicker className="field" label="Pick Holidays" placeholder="Select a date..." name="HolDate" value={state.HolDate} onSelectDate={setHolDate} ariaLabel="Select a date"/>
         <TextField className="field" label="Name of Occasion" name="Occasion" value={state.Occasion} onChange={setProperty}/>
+        <DetailsList 
+                        items={Holidaysdetails}
+                        setKey="set"
+                        layoutMode={DetailsListLayoutMode.justified}
+                        selectionMode={SelectionMode.none}
+        /> 
         <PrimaryButton className="Add" text="Add Holidays" onClick={onSubmit} allowDisabledFocus />
         </React.Fragment>
             </form>
