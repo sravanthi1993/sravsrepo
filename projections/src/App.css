@@ -107,5 +107,28 @@
 }
 
 .logoutnoaccess {
-  margin-right: -200px;
+  margin-right: -150px;
+}
+
+.resourcefield {
+  margin-right: 100px;
+}
+
+.resourcesection {
+  display: flex;
+}
+
+.name {
+  position: absolute;
+  left: 20px;
+}
+
+.billing {
+  position: absolute;
+  left: 160px;
+}
+
+.days {
+  position: absolute;
+  left: 300px;
 }

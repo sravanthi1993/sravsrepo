@@ -59,7 +59,6 @@ function App() {
             <div>
             <label className = "username" > {accountInfo.account.userName}</label> <br/>
           <button className = "logout" onClick={logout} color="inherit" variant="outlined">Log Out</button></div></div>
-          <Projects projectlist={projectlist}/>
           </div>);
         }
           else if(!callcompleted)
@@ -82,7 +81,7 @@ function App() {
          <Switch>
          <Route exact path="/" render={props =>(
            <React.Fragment>
-          
+             <Projects projectlist={projectlist}/>
            </React.Fragment>
          )}/>
           </Switch>
