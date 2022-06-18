@@ -3,6 +3,8 @@ package chinni;
 import java.util.HashMap;
 import java.util.List;
 
+
+// Anagram
 public class anagram {
 	
 	public boolean isAnagram(String s, String t) {
